@@ -1,9 +1,10 @@
 variable "aws_region" {
-  default = "ap-south-1"
+  default = "us-east-1"
 }
 
 variable "ami_id" {
-  default = "ami-0f5ee92e2d63afc18"
+  # Amazon Linux 2 – us-east-1
+  default = "ami-0c02fb55956c7d316"
 }
 
 variable "key_name" {
