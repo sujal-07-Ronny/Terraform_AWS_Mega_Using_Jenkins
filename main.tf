@@ -60,13 +60,23 @@ resource "aws_security_group" "web_sg" {
 }
 
 resource "aws_instance" "web_ec2" {
-  ami                    = var.ami_id
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public_subnet.id
+  ami           = var.ami_id
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.public_subnet.id
+  key_name      = var.key_name
+
   vpc_security_group_ids = [aws_security_group.web_sg.id]
-  key_name               = var.key_name
 
-  user_data = file("user_data.sh")
+  user_data = <<-EOF
+    #!/bin/bash
+    yum update -y
+    amazon-linux-extras install docker -y
+    service docker start
+    docker run -d -p 80:80 ronny71011/mega:latest
+  EOF
 
-  tags = { Name = "mega-docker-web-server" }
+  tags = {
+    Name = "mega-docker-web-server"
+  }
 }
+
