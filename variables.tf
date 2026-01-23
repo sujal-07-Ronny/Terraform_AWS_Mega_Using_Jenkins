@@ -8,4 +8,5 @@ variable "ami_id" {
 
 variable "key_name" {
   description = "EC2 key pair name"
+  default     = "my-ec2-key"
 }
