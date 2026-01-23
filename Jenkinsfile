@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        AWS_DEFAULT_REGION = "ap-south-1"
+        AWS_DEFAULT_REGION = "us-east-1"
         EMAIL_TO           = "sujalshaha974@gmail.com"
     }
 
@@ -17,7 +17,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                withCredentials([[
+                withCredentials([[ 
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials'
                 ]]) {
@@ -34,7 +34,7 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                withCredentials([[
+                withCredentials([[ 
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials'
                 ]]) {
@@ -51,7 +51,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                withCredentials([[
+                withCredentials([[ 
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials'
                 ]]) {
@@ -59,10 +59,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Manual Destroy (Optional)') {
+            when {
+                expression { return false }   // change to true ONLY when you want destroy
+            }
+            steps {
+                input message: 'Destroy ALL AWS resources?', ok: 'Destroy Now'
+                withCredentials([[ 
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials'
+                ]]) {
+                    sh 'terraform destroy -auto-approve'
+                }
+            }
+        }
     }
 
     post {
-
         success {
             emailext(
                 subject: "✅ Jenkins SUCCESS: AWS Terraform Deployment",
